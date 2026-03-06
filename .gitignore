@@ -1,0 +1,35 @@
+# -------------------------------------------------------------------
+# 1. CREDENCIALES Y TOKENS (¡Lo más importante!)
+# -------------------------------------------------------------------
+# Aquí es donde guardarás tus tokens de Supabase y contraseñas.
+# NUNCA deben subirse a GitHub.
+.Renviron
+.Rprofile
+.env
+
+# -------------------------------------------------------------------
+# 2. CARPETA DE DATOS
+# -------------------------------------------------------------------
+# Ignora todo el contenido de la carpeta data (raw y processed)
+# para no subir los archivos .lef ni las bases de datos locales.
+data/
+
+# -------------------------------------------------------------------
+# 3. ARCHIVOS TEMPORALES DE R Y RSTUDIO
+# -------------------------------------------------------------------
+# Archivos de historial y espacio de trabajo que R genera automáticamente
+.Rhistory
+.RData
+.Ruserdata
+*.RData
+*.rda
+*.rds
+
+# Configuración local de RStudio (si usas proyectos .Rproj)
+.Rproj.user/
+
+# -------------------------------------------------------------------
+# 4. ARCHIVOS DEL SISTEMA OPERATIVO
+# -------------------------------------------------------------------
+.DS_Store
+Thumbs.db
