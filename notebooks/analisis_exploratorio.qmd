@@ -1,0 +1,266 @@
+---
+title: "🏊‍♂️ Análisis Exploratorio y Limpieza de BBDD"
+subtitle: "SplashBoard - Visualización y Comunicación de Datos Deportivos"
+author: "Alonso González Romero"
+date: today
+format: 
+  html:
+    theme: flatly
+    toc: true
+    toc-depth: 3
+    toc-title: "Índice"
+    code-fold: show
+    code-tools: true
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+# Importación de librerías necesarias
+
+
+```{r}
+#| label: setup-y-conexion
+#| include: true
+
+# 1. Cargar librerías
+library(tidyverse) # El rey del análisis de datos (incluye dplyr, ggplot2, etc.)
+library(DBI)       # Para conectar a bases de datos
+library(RPostgres) # El motor específico para PostgreSQL (Supabase)
+library(knitr)     # Para pintar tablas bonitas
+library(janitor)   # Herramienta mágica para limpiar datos
+
+# 2. Conexión segura a Supabase leyendo el archivo .Renviron
+# OJO: R lee el .Renviron automáticamente al arrancar.
+# Usamos el usuario 'postgres' y la contraseña maestra.
+tryCatch({
+  con <- dbConnect(
+    RPostgres::Postgres(),
+    dbname   = Sys.getenv("DB_NAME"),
+    host     = Sys.getenv("DB_HOST"),
+    port     = Sys.getenv("DB_PORT"),
+    user     = Sys.getenv("DB_USER"),
+    password = Sys.getenv("DB_PASS")
+  )
+  print("✅ ¡Conexión a Supabase establecida con éxito!")
+}, error = function(e) {
+  print("❌ Error al conectar. Revisa tu archivo .Renviron o tu conexión a internet.")
+  print(e$message)
+})
+```
+
+# Tarea 1: Revisar la estructura de las competiciones
+
+El objetivo de esta sección es entender cómo están organizados los datos de las competiciones en la base de datos. Y tras ello, generar una pequeña función en un script que nos permita obtener algunos datos clave que puedan ser usables más tarde: 
+
+
+```{r}
+#| label: revisar-bbdd-competiciones
+tabla <- dbGetQuery(con, 
+"SELECT * FROM competiciones")
+tabla
+```
+
+Observando los datos de la tabla, vamos a usar los paquetes tidygeocoder y leaflet para geocodificar las ubicaciones de las competiciones y poder visualizarlas en un mapa interactivo. 
+
+
+```{r}
+#| label: geocodificar-ciudades
+
+library(dplyr)
+library(tidygeocoder)
+library(leaflet)
+
+# 1. Extraemos las ciudades y naciones únicas de la BBDD
+competiciones_db <- tbl(con, "competiciones")
+
+ciudades_unicas <- competiciones_db %>%
+  select(city, nation) %>%
+  distinct() %>% 
+  collect()
+
+# 2. Juntamos la ciudad y el país en una sola línea de texto (Ej: "Madrid, ESP")
+ciudades_preparadas <- ciudades_unicas %>%
+  mutate(direccion_completa = paste(city, nation, sep = ", "))
+
+print("Buscando coordenadas en internet... (esto puede tardar unos segundos)")
+
+# 3. Usamos SOLO el parámetro 'address' para evitar el error
+ciudades_geo <- ciudades_preparadas %>%
+  geocode(
+    address = direccion_completa, 
+    method = 'osm',      
+    lat = latitud,       
+    long = longitud      
+  )
+
+print("¡Coordenadas encontradas!")
+print(ciudades_geo)
+
+# Inyectamos manualmente, Berlín, Fukuoka, Netanya y Incheon: 
+
+ciudades_geo <- ciudades_geo %>%
+  mutate(
+    latitud = case_when(
+      city == "Berlin" ~ 52.5200,
+      city == "Fukuoka" ~ 33.5904,
+      city == "Netanya" ~ 32.3326,
+      city == "Incheon" ~ 37.4563,
+      TRUE ~ latitud
+    ),
+    longitud = case_when(
+      city == "Berlin" ~ 13.4050,
+      city == "Fukuoka" ~ 130.4017,
+      city == "Netanya" ~ 34.8599,
+      city == "Incheon" ~ 126.7052,
+      TRUE ~ longitud
+    )
+  )
+
+# 4. Pintamos el mapa interactivo
+leaflet(ciudades_geo) %>%
+  addTiles() %>% 
+  addMarkers(
+    lng = ~longitud, 
+    lat = ~latitud, 
+    popup = ~city 
+  )
+
+```
+
+# Tarea 2: Revisar la estructura de los atletas.
+
+Aquí tenemos varias tareas que ejecutar: 
+
+1. Cambiar los nombres y apellidos para que todos sean en minúsculas con la primera en mayúscula (Ej: "Alonso González Romero" en vez de "ALONSO GONZÁLEZ ROMERO").
+
+2. Revisar si un mismo atleta (misma fecha de nacimiento, nombre, apellido y país) aparece varias veces en la tabla. Si es así, debemos tenerlo en cuenta para actualizar en un script la BBDD. 
+
+3. Revisar si hay valores nulos y en qué variables aparecen.
+
+4. Revisar los nombres para buscar fotografías de los nadadores en internet.
+
+
+## Tarea 2.1: Limpiar los nombres de los atletas
+
+Para ello simplemente debemos ejecutar lo siguiente en BBDD: 
+
+```r
+UPDATE nadadores
+SET 
+    firstname = INITCAP(TRIM(LOWER(firstname))),
+    lastname = INITCAP(TRIM(LOWER(lastname)));
+```
+
+## Tarea 2.2: Revisar si hay atletas duplicados. 
+
+```{r}
+#| label: revisar-atletas-duplicados
+
+# Los buscamos en BBDD: 
+
+atletas_duplicados <- dbGetQuery(con, 
+"SELECT firstname, lastname, birthdate, nation, COUNT(*) as veces
+FROM nadadores
+GROUP BY firstname, lastname, birthdate, nation
+HAVING COUNT(*) > 1")
+
+print("Atletas duplicados encontrados:")
+print(atletas_duplicados)
+
+```
+
+Por lo tanto, tenemos que actualizar la BBDD para eliminar los duplicados. La idea será elegir un ID de nadador para cada grupo de duplicados y actualizar las tablas: 
+
+- Resultados_individuales
+- Resultados_relevos
+- Relevistas
+- nadadores_clubes
+
+Y por último, eliminar los nadadores duplicados.
+
+```{r}
+#| label: eliminar-enviroment-actual
+
+rm(atletas_duplicados, ciudades_geo, ciudades_preparadas, ciudades_unicas, tabla, competiciones_db)
+```
+
+# Tarea 2.3: Revisar si hay valores nulos y en qué variables aparecen.
+
+```{r}
+#| label: revisar-valores-nulos
+
+# Revisamos la tabla nadadores completa y traemos a R las filas que tengan al menos un valor nulo.
+
+nadadores_nulos <- dbGetQuery(con, 
+"SELECT * from nadadores
+WHERE firstname IS NULL OR lastname IS NULL OR birthdate IS NULL OR nation IS NULL")
+
+print("Nadadores con valores nulos:")
+print(nadadores_nulos)
+```
+
+Ningún nadador tiene nation puesta, la vamos a dejar así por ahora pero cuando analicemos los clubes para determinar cuáles son selecciones y cuáles no, podemos actualizar esta información.
+
+
+# Tarea 2.4: Revisar los nombres para buscar fotografías de los nadadores.
+
+Para esta tarea, la idea va a ser ponerles a todos los nadadores una fotito por defecto y si haciendo la app vemos algunos nadadores muy relevantes sin foto, buscamos su imagen en internet y se la añadimos manualmente. 
+
+
+# Tarea 3: Revisar la estructura de los clubes
+
+Para revisar la estructura de los clubes, se van a realizar las siguientes tareas: 
+
+1. Detectar cuándo un club es una selección nacional (Ej: España, Francia, etc.) y cuándo no lo es (Ej: CN Barcelona, Real Canoe NC, etc.). A las selecciones nacionales les vamos a poner una nueva variable con valor True y a los clubes normales con valor False. Nos servirá para luego añadir naciones a ciertos nadadores que no las tienen puestas. 
+
+2. Revisar si hay valores nulos y en qué variables aparecen. 
+
+3. A las selecciones, les vamos a añadir una fotito de su bandera. 
+
+4. Revisar los nombres de clubes para buscar fotografías de los clubes en internet. 
+
+
+# Tarea 3.1: Detectar selecciones nacionales y añadir variable
+
+Para ello, vamos a traer a R la tabla de clubes limitada a 1500 filas para no saturar la memoria y vamos a revisar los nombres. 
+
+```{r}
+#| label: revisar-clubes
+
+clubes <- dbGetQuery(con, 
+"SELECT * FROM clubes LIMIT 1500")
+
+clubes
+```
+
+Si observamos la tabla, vemos que los clubes que son selecciones nacionales tienen el mismo nombre tanto en la variable club_code y club_nation. Por lo tanto, vamos a usar esta información para crear la nueva variable. 
+
+## Tarea 3.2: Revisar si hay valores nulos y en qué variables aparecen.
+
+Hecha con la tarea anterior, la única variable nula es el club_region, podríamos dejarla así o incluso eliminarla. 
+
+## Tarea 3.3: A las selecciones, les vamos a añadir una fotito de su bandera. A los clubes, una fotito de su logo. 
+
+Nos vamos a traer a R los club_nation distinct y vamos a intentar inyectar sus códigos ISO. 
+
+```{r}
+#| label: geocodificar-clubes
+
+naciones = dbGetQuery(con, 
+"SELECT DISTINCT club_nation FROM clubes"
+)
+
+print(naciones)
+
+
+```
+
+
+# Desconectar base de datos
+
+```{r}
+dbDisconnect(con)
+print("🔌 Conexión a Supabase cerrada. ¡Hasta la próxima!")
+```
