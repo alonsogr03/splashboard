@@ -1,12 +1,10 @@
 # -------------------------------------------------------------------
-# 1. CREDENCIALES Y TOKENS (¡Lo más importante!)
+# 1. CREDENCIALES Y TOKENS (Busca en cualquier subcarpeta)
 # -------------------------------------------------------------------
-# Aquí es donde guardarás tus tokens de Supabase y contraseñas.
-# NUNCA deben subirse a GitHub.
+**/.Renviron
+**/.Rprofile
+**/.env
 .Renviron
-.Rprofile
-.env
-
 # -------------------------------------------------------------------
 # 2. CARPETA DE DATOS
 # -------------------------------------------------------------------

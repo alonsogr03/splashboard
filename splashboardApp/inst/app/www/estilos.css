@@ -1,0 +1,231 @@
+/* 1. Importamos una fuente premium de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;900&display=swap');
+
+/* 2. El Contenedor Gigante */
+#cabecera_hero {
+  /* CRISTAL TINTADO AL 60% + TU FOTO (Acuérdate de poner el nombre real de tu foto aquí) */
+  background-image: linear-gradient(rgba(4, 20, 50, 0.8), rgba(4, 20, 50, 0.8)), url('logo_aplicacion.png');
+  background-size: cover;       
+  background-position: center;  
+  background-attachment: fixed; /* Efecto Parallax: la foto se queda quieta al hacer scroll */
+  
+  min-height: 80vh; /* Ocupa el 70% de la altura de la pantalla del usuario */
+  width: 100%;
+  color: white; 
+}
+
+/* 3. El Logo Mágico */
+.logo-hero {
+  width: 140px;
+  margin-bottom: 30px;
+  /* EL TRUCO: Convierte cualquier logo oscuro en blanco puro y brillante */
+  filter: brightness(0) invert(1); 
+}
+
+/* 4. Tipografía Institucional (Títulos) */
+.titulo-hero {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900; 
+  text-transform: uppercase; 
+  letter-spacing: 3px; 
+  font-size: 4rem; 
+  margin-bottom: 10px;
+  
+  /* 1. El color blanco puro */
+  color: #FFFFFF; 
+  
+  /* 2. El truco PRO: Sombra en dos capas */
+  /* Capa 1: Sombra corta y muy oscura para darle borde y lectura */
+  /* Capa 2: Sombra ancha y más suave para crear un efecto "brillo" oscuro alrededor */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 
+               0px 0px 25px rgba(0, 0, 0, 0.6); 
+}
+
+/* 5. El Lema */
+.lema-hero {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.8);
+  margin-bottom: 5px;
+}
+
+/* 6. Los Valores */
+.sublema-hero {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem; /* Un pelín más pequeño para darle todo el peso al título */
+  font-weight: 500; /* Grosor medio, elegante */
+  
+  /* EL TRUCO: Blanco puro pero al 85% de opacidad. 
+     Así se integra con el fondo sin deslumbrar */
+  color: rgba(255, 255, 255, 0.85); 
+  
+  text-transform: uppercase;
+  letter-spacing: 5px; /* Más separación entre letras = diseño más "caro" y moderno */
+  margin-top: 25px; /* Lo separamos un poco más del texto de arriba para que respire */
+  
+  /* Una sombra muy sutil solo para garantizar que se lee si cae sobre un reflejo */
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8); 
+}
+
+
+/* ------ BARRA DE NAVEGACIÓN ------ */
+/* Aplicamos el diseño EXCLUSIVAMENTE a la lista del menú para evitar afectar al contenido de la app */
+ul.nav-underline {
+  display: flex !important;
+  justify-content: center !important; /* CENTRADO ABSOLUTO */
+  align-items: center !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 15px 0 !important;
+  gap: 3rem !important; /* Separación elegante */
+  flex-wrap: wrap !important;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  
+  /* Efecto visual sin ser flotante */
+  background-color: #ffffff;
+  box-shadow: 0 8px 20px rgba(10, 36, 99, 0.05);
+  border-bottom: 2px solid rgba(10, 36, 99, 0.04);
+}
+
+/* Ocultar elementos invisibles generados por Shiny que pueden estar rompiendo el Flexbox */
+ul.nav-underline > li[class*='d-none'],
+ul.nav-underline > li[style*='display: none'],
+ul.nav-underline > li.hidden,
+ul.nav-underline > li:empty {
+  display: none !important;
+  flex: 0 0 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+ul.nav-underline .nav-link {
+  padding: 0.35rem 0.5rem;
+}
+
+/* Colores corporativos */
+ul.nav-underline .nav-link { color: #555555 !important; }
+ul.nav-underline .nav-link:hover,
+ul.nav-underline .nav-link.active {
+  color: #0A2463 !important;
+  border-bottom-color: #0A2463 !important;
+}
+
+.calendario_noticias {
+  position: sticky;
+  top: 110px;
+  align-self: start;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(10, 36, 99, 0.10);
+  border: 1px solid rgba(10, 36, 99, 0.06);
+}
+
+.calendario_widget-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.calendario_widget-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #0A2463;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.calendario_widget-subtitle {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+
+/* Botones de navegación del calendario */
+.tui-full-calendar-btn-prev, 
+.tui-full-calendar-btn-next, 
+.tui-full-calendar-btn-today {
+    background-color: #ffffff !important;
+    border: 1px solid #0A2463 !important;
+    color: #0A2463 !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease;
+}
+
+.tui-full-calendar-btn-prev:hover, 
+.tui-full-calendar-btn-next:hover {
+    background-color: #0A2463 !important;
+    color: white !important;
+}
+
+/* El título del mes actual dentro del calendario */
+.tui-full-calendar-render-range {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: #0A2463;
+    text-transform: capitalize;
+}
+
+/* Evitamos que el calendario expanda contenido por fuera o corte las celdas inferiores */
+.tui-full-calendar-layout {
+  border-radius: 14px;
+  border: 1px solid #e7eef6;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Reducimos ligeramente el alto interno de las celdas de ToastUI si hace falta para ganar espacio */
+.tui-full-calendar-month-day {
+  min-height: 80px !important;
+}
+
+.tui-full-calendar-month-dayname {
+  font-weight: 600;
+  color: #0A2463;
+}
+
+.tui-full-calendar-weekday-schedule-block {
+  border-radius: 6px;
+  padding-left: 6px;
+  font-weight: 600;
+}
+
+/* Efecto hover suave en las filas de la tabla */
+.rt-tr:hover {
+  background-color: #f0f7ff !important;
+  cursor: pointer;
+}
+
+/* Título del contenedor de marcas */
+.contenedor-marcas-titulo {
+  color: #0A2463;
+  font-weight: 800;
+  border-bottom: 3px solid #3E92CC;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+/* Título dentro del widget */
+.calendario_noticias h2 {
+  font-size: 1.3rem; /* Lo hacemos sutilmente más pequeño para que no grite */
+  border-bottom: 2px solid #E1F5FE !important; /* Línea separadora súper suave */
+  padding-bottom: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+/* Ocultar scrollbars internas feas de ToastUI si las genera */
+@media (max-width: 992px) {
+  .nav-underline {
+    gap: 1.5rem;
+    font-size: 1rem;
+  }
+}
