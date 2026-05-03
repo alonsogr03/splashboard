@@ -35,15 +35,15 @@ mod_nadadores_ui <- function(id) {
       }
     ")),
 
-    # Queremos una pagina que tenga filtros y salgan los nadadores que se adecúen a dichos filtros. Usamos layour_sidebar para ello.
+
 
     page_fillable(
       layout_sidebar(
         fillable = TRUE,
-        # 1. Los filtros por un lado
+        
 
         sidebar = sidebar(
-          width = 380, # La anchura del sidebar
+          width = 380, 
           bg = "#ffffff",
           title = div(
             h4("Filtros", class = "titulo-sidebar-mod-nadadores"),
@@ -51,7 +51,7 @@ mod_nadadores_ui <- function(id) {
           ),
           class = "sidebar-mod-nadadores",
 
-        # Añadimos filtros de nombre, apellidos, género y año de nacimiento.
+        
 
 
         # Filtro de nombre
@@ -106,9 +106,9 @@ mod_nadadores_ui <- function(id) {
           uiOutput(ns("caja_tarjetas"))
         )
       )
-    ) # Cierra layout_sidebar
-    ) # Cierra page_fillable
-  ) # Cierra tagList
+    ) 
+    ) 
+  ) 
 }
     
 #' nadadores Server Functions
@@ -118,19 +118,19 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
-    # Configuramos los filtros
+    
 
     texto_nombre <- reactive({input$filtro_nombre}) |> debounce(500) # Así no busca cada palabra!!
     texto_apellidos <- reactive({input$filtro_apellidos}) |> debounce(500)
 
-    # La búsqueda reactiva de nadadores
+    
     nadadores_filtrados <- reactive({
       val_nombre <- trimws(texto_nombre())
       val_apellidos <- texto_apellidos()
       val_genero <- input$filtro_genero
       val_nacimiento <- input$filtro_nacimiento
 
-      # Verificamos si está todo vacío para no devolver nada. Metemos la posibilidad de poner "     " y que se rompiese...
+      
       todo_vacio <- (is.null(val_nombre) || trimws(val_nombre) == "") &&
                     (is.null(val_apellidos) || trimws(val_apellidos) == "") &&
                     (is.null(val_genero) || trimws(val_genero) == "") &&
@@ -140,7 +140,7 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
         return(data.frame())
       }
 
-      # Si hay cositas, las cargamos con la llamada a la API. 
+      
 
       df <- buscar_nadadores_api(nombre = val_nombre, apellidos = val_apellidos, genero = val_genero, nacimiento = val_nacimiento)
 
@@ -151,13 +151,13 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
 
 
 
-    # Mostrar las cards de manera reactiva. 
+    
     output$caja_tarjetas <- renderUI({
       df <- nadadores_filtrados() 
       
       if (nrow(df) == 0) return(NULL)
       
-      # Generamos la lista de tarjetas
+      
       lista_cards <- lapply(1:nrow(df), function(i) {
         crear_card_nadador(
           ns = ns,
@@ -169,7 +169,7 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
         )
       })
       
-      # Las metemos en un grid
+      
       layout_column_wrap(
         width = "250px", 
         fixed_width = TRUE,
@@ -179,7 +179,7 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
     })
 
 
-    # Eliminacion de filtros
+    
     observeEvent(input$btn_limpiar, {
       updateTextInput(
         session = session, 
@@ -193,14 +193,14 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
         value = ""
       )
       
-      # 2. Restauramos el selector de género a "Todos"
+      
       updateSelectInput(
         session = session, 
         inputId = "filtro_genero", 
         selected = ""                
       )
       
-      # 3. Vaciamos el año de nacimiento
+      
       updateNumericInput(
         session = session, 
         inputId = "filtro_nacimiento", 
@@ -211,20 +211,18 @@ mod_nadadores_server <- function(id, mensajero, sesion_padre){
 
     
     
-    # Este bloque detecta clics en botones dinámicos (ej: ver_perfil_1, ver_perfil_2...)
+    
     observeEvent(input$nadador_clicado, {
       print(paste("¡Botón pulsado! ID detectado:", input$nadador_clicado))
-      # 1. Obtenemos el ID que nos ha mandado el botón de JavaScript
+
       id_real <- input$nadador_clicado
-      
-      # 2. Se lo pasamos al mensajero para que mod_perfil_nadador pueda usarlo
+
       mensajero$id_nadador_seleccionado <- id_real
       
-      # 3. Viajamos a la pestaña
       bslib::nav_select(
         id = "menu_principal", 
         selected = "perfil_detallado", 
-        session = sesion_padre # IMPORTANTE: Explicación en el paso 3
+        session = sesion_padre 
       )
   
     })

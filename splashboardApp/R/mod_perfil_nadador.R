@@ -16,12 +16,12 @@ mod_perfil_nadador_ui <- function(id) {
     div(
       class = "container mt-5 mb-5",
       
-      # Tarjeta superior con la info del atleta en grande
+      
       uiOutput(ns("cabecera_nadador")),
       
       br(),
       
-      # Dos columnas para sus stats y competiciones
+      
       layout_columns(
         col_widths = c(6, 6),
         
@@ -74,7 +74,6 @@ mod_perfil_nadador_server <- function(id, mensajero){
       obtener_mejores_tiempos_nadador(mensajero$id_nadador_seleccionado)
     })
     
-    # ------------------ RENDERS ------------------
     
     output$cabecera_nadador <- renderUI({
       df <- info_basica()
@@ -146,7 +145,7 @@ mod_perfil_nadador_server <- function(id, mensajero){
       reactable(
         df,
         columns = list(
-          distance = colDef(name = "Distancia", width = 90),
+          distance = colDef(name = "Distancia", width = 110),
           style = colDef(name = "Estilo"),
           course = colDef(name = "Piscina", width = 80),
           swimtime = colDef(show = FALSE),

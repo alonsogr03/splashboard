@@ -51,7 +51,7 @@ mod_marcas_ui <- function(id) {
           class = "sidebar-mod-marcas",
 
 
-          # Añadimos filtros de distancia, estilo, género y año de nacimiento (rango)
+          
 
         selectInput(
           inputId = ns("filtro_distancia"),
@@ -79,10 +79,10 @@ mod_marcas_ui <- function(id) {
         dateRangeInput(
           inputId = ns("filtro_rango_nacimiento"),
           label = "Fecha de realización de la marca:",
-          start = "1900-01-01",      # Fecha de inicio por defecto
-          end = Sys.Date(),          # Fecha de fin por defecto
-          min = "1890-01-01",        # Límite mínimo
-          max = Sys.Date(),          # Límite máximo
+          start = "1900-01-01",      
+          end = Sys.Date(),          
+          min = "1890-01-01",        
+          max = Sys.Date(),          
           language = "es",
           separator = " hasta ",
           weekstart = 1
@@ -108,7 +108,7 @@ mod_marcas_ui <- function(id) {
 
       ),
 
-      # 2. Área donde saldrá un dataframe bonito con el top de mejores marcas.
+      
 
       card(
         style = "border: none; box-shadow: 0 4px 20px rgba(10,36,99,0.08); border-radius: 12px; margin-top: 10px;",
@@ -117,9 +117,9 @@ mod_marcas_ui <- function(id) {
           uiOutput(ns("dataframe_resultados"))
         )
       )
-    ) # Cierra layout_sidebar
-    ) # Cierra page_fillable
-  ) # Cierra tagList
+    ) 
+    ) 
+  )
 }
     
 #' marcas Server Functions
@@ -144,8 +144,7 @@ mod_marcas_server <- function(id){
     }, ignoreNULL = FALSE)
 
     texto_titulo <- eventReactive(input$btn_buscar, {
-      # Al usar eventReactive, el título solo cambia cuando pulsas el botón,
-      # no cuando cambias el selector sin haber buscado todavía.
+      
       distancia <- input$filtro_distancia
       estilo <- input$filtro_estilo
       piscina <- if(input$filtro_piscina == "LCM") "Piscina Larga" else "Piscina Corta"
@@ -153,7 +152,7 @@ mod_marcas_server <- function(id){
       paste("Top Marcas:", distancia, "m", estilo, "-", piscina)
     }, ignoreNULL = FALSE)
 
-    # 3. Renderizamos el título
+    
     output$titulo_dinamico <- renderUI({
       h3(texto_titulo(), 
          class = "contenedor-marcas-titulo mb-4", 
@@ -177,7 +176,7 @@ mod_marcas_server <- function(id){
       
       reactable::reactable(
         df,
-        searchable = TRUE, # Permite buscar un nadador rápido
+        searchable = TRUE, 
         highlight = TRUE,
         defaultColDef = reactable::colDef(vAlign = "center"),
         columns = list(
@@ -195,7 +194,7 @@ mod_marcas_server <- function(id){
           gender = reactable::colDef(
             name = "Gen.", width = 70, align = "center",
             cell = function(value) {
-              class <- if(value == "M") "bg-info" else "bg-danger" # Azul para chicos, Rosa para chicas
+              class <- if(value == "M") "bg-info" else "bg-danger" 
               label <- if(value == "M") "M" else "F"
               span(class = paste("badge rounded-pill", class), label)
             }
@@ -204,7 +203,7 @@ mod_marcas_server <- function(id){
           round = reactable::colDef(
             name = "Ronda", width = 80, align = "center",
             cell = function(value) {
-              # Badges para Finales (FIN) vs Preliminares (PRE)
+              
               color <- if(value == "FIN") "#0A2463" else "#3E92CC"
               span(value, class = "badge", style = paste0("background-color: ", color))
             }
@@ -228,7 +227,7 @@ mod_marcas_server <- function(id){
           parciales = reactable::colDef(show = FALSE)
         ),
         
-        # EXPANSIÓN DE PARCIALES RE-DISEÑADA
+        
         details = function(index) {
           df_p <- df$parciales[[index]]
           if (is.null(df_p) || nrow(df_p) == 0) return(NULL)
@@ -262,7 +261,7 @@ mod_marcas_server <- function(id){
           )
         },
         
-        # TEMA GLOBAL PROFESIONAL
+        
         theme = reactable::reactableTheme(
           headerStyle = list(
             backgroundColor = "#f8f9fa",

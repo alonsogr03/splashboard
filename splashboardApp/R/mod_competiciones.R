@@ -44,7 +44,7 @@ mod_competiciones_ui <- function(id) {
         border-radius: 10px;
       }
     ")),
-    page_fillable( # Para que ocupe toda la pantalla disponible
+    page_fillable( 
       layout_sidebar(
         fillable = TRUE,
         sidebar = sidebar(
@@ -53,8 +53,8 @@ mod_competiciones_ui <- function(id) {
             p("Eventos oficiales confirmados", style = "font-size: 0.85rem; color: #6c757d; margin-top: 5px;")
           ),
           width = 380,
-          bg = "#ffffff", # Fondo blanco limpio para la sidebar
-          # Creamos un contenedor con scroll para la lista
+          bg = "#ffffff",
+          # Creamos un contenedor con scroll
           div(
             class = "panel-competiciones",
             uiOutput(ns("lista_competiciones"))
@@ -86,7 +86,7 @@ mod_competiciones_server <- function(id){
       # Traemos los datos de Supabase
       df <- obtener_datos_competiciones()
       
-      # Transformamos con dplyr (asegúrate de tener library(dplyr) o usar los ::)
+      # Transformamos con dplyr 
       df |> 
         dplyr::mutate(
           # Convertimos a fechas reales de R
@@ -96,14 +96,14 @@ mod_competiciones_server <- function(id){
           esta_pasada = fin < Sys.Date(),
           # Cálculo de calles
           num_calles = pool_max_lane - pool_min_lane,
-          # ID único para los botones (usamos el nombre si no hay ID)
+          # ID único para los botones
           id_temp = 1:dplyr::n() 
         ) |> 
         # Ordenamos: De más reciente a más antigua
         dplyr::arrange(dplyr::desc(inicio))
     })
 
-    # --- 2. RENDER DEL MAPA (Voyager Style) ---
+    # --- 2. RENDER DEL MAPA ---
     output$mapa_mundial <- leaflet::renderLeaflet({
       df <- datos_reactivos()
       
@@ -118,11 +118,10 @@ mod_competiciones_server <- function(id){
     })
 
     # --- 3. LISTA CON NAVEGACIÓN Y FILTRO ---
-    # Para no tener una lista infinita, vamos a añadir un buscador simple arriba
     output$lista_competiciones <- renderUI({
       df <- datos_reactivos()
       
-      # Añadimos un buscador de texto arriba de la lista
+     
       tagList(
         div(
           class = "buscador-competiciones",
@@ -152,11 +151,11 @@ mod_competiciones_server <- function(id){
       lapply(1:nrow(df), function(i) {
         comp <- df[i, ]
         
-        # Color según si ha pasado o no (Paleta Corporativa)
+        
         color_borde <- if(comp$esta_pasada) "#e2e8f0" else "#3E92CC"
         label_estado <- if(comp$esta_pasada) "Finalizada" else "Próximamente"
         
-        # Estilos de los "badges" para que parezcan premium
+        
         badge_style <- if(comp$esta_pasada) {
           "background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 0.72rem; font-weight: 600;"
         } else {
@@ -190,7 +189,7 @@ mod_competiciones_server <- function(id){
       })
     })
 
-    # --- 4. OBSERVADORES DE CLIC (El Vuelo) ---
+    # --- 4. OBSERVADORES DE CLIC ---
     observe({
       df <- datos_reactivos()
       for (i in 1:nrow(df)) {

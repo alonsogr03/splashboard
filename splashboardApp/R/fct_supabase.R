@@ -447,7 +447,7 @@ obtener_datos_doha <- function() {
   
   if (length(datos_list) == 0 || nrow(datos_list) == 0) return(data.frame())
   
-  # Aplanamos el dataframe
+  
   df <- data.frame(
     points = as.numeric(datos_list$points),
     place = as.numeric(datos_list$place),

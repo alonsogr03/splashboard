@@ -10,7 +10,7 @@ app_ui <- function(request) {
     page_fluid(
       theme = bs_theme(preset = "minty"),
 
-      # Cabecera con logo y nombre de la aplicacion
+      # Cabecera de la app
       div(
         id = "cabecera_hero",
         class = "d-flex flex-column justify-content-center align-items-center text-center",
@@ -36,12 +36,12 @@ app_ui <- function(request) {
         id = "menu_principal",
         selected = "noticias", 
         
-        # PÁGINAS OCULTAS
+        # PÁGINAS MEZCLADAS CON LAS OCULTAS PARA QUE EL MENU SE VEA CENTRADO
           nav_panel_hidden(
             value = "noticias",
             mod_noticias_ui("noticias_1") 
           ),
-          # PÁGINAS VISIBLES EN EL MENÚ
+          # 
           nav_panel("Marcas", mod_marcas_ui("marcas_1")),
           nav_panel_hidden(
             value = "estudio_lublin", 
